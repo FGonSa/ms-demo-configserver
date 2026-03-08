@@ -2,7 +2,7 @@ global:
   message: Estás en el entorno PROD
 spring:
   application:
-    name: service-product
+    name: service-product-prod
   datasource:
     url: jdbc:postgresql://localhost:5432/productos_db
     username: f5antos
