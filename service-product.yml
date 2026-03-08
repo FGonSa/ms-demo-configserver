@@ -1,3 +1,5 @@
+global:
+  message: Estás en el entorno DEFAULT
 spring:
   application:
     name: service-product
