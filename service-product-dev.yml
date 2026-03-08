@@ -1,5 +1,5 @@
 global:
-  message: Estás en el entorno DEV
+  message: Estás en el entorno DEV V2
 spring:
   application:
     name: service-product-dev
