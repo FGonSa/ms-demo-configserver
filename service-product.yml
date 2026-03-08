@@ -1,10 +1,10 @@
 spring:
   application:
-    name: product-service
+    name: service-product
   datasource:
-    url: jdbc:postgresql://localhost:5432/product
-    username: embarkx
-    password: embarkx
+    url: jdbc:postgresql://localhost:5432/productos_db
+    username: f5antos
+    password: f5antos123
   jpa:
     database: POSTGRESQL
     show-sql: true
