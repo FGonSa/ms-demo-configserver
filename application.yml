@@ -1,0 +1,28 @@
+# Configuración común para todos los microservicios
+spring:
+  jackson:
+    date-format: yyyy-MM-dd HH:mm:ss
+    time-zone: UTC
+
+# Configuración de Eureka (Discovery Client)
+eureka:
+  instance:
+    prefer-ip-address: true
+  client:
+    register-with-eureka: true
+    fetch-registry: true
+    service-url:
+      defaultZone: ${EUREKA_URL:http://localhost:8761/eureka/}
+
+# Actuator: Exponer endpoints críticos para todos
+management:
+  endpoints:
+    web:
+      exposure:
+        include: "health,info,refresh,bus-refresh,prometheus"
+  endpoint:
+    health:
+      show-details: always
+  metrics:
+    tags:
+      application: ${spring.application.name}
