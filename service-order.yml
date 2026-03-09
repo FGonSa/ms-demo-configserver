@@ -1,0 +1,17 @@
+global:
+  message: Estás en el entorno DEFAULT
+spring:
+  application:
+    name: service-order
+  datasource:
+    url: jdbc:postgresql://localhost:5432/order_db
+    username: f5antos
+    password: 123456
+  jpa:
+    database: POSTGRESQL
+    show-sql: true
+    hibernate:
+      ddl-auto: update
+    database-platform: org.hibernate.dialect.PostgreSQLDialect
+server:
+  port: 8082
