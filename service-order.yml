@@ -20,7 +20,7 @@ resilience4j:
   circuitbreaker:
     instances:
       productosCB:
-        slidingWindowSize: 6          # Mira las últimas 6 llamadas
+        slidingWindowSize: 10          # Mira las últimas 10 llamadas
         failureRateThreshold: 50      # Si 3 de 6 fallan, abre el circuito
         waitDurationInOpenState: 20s  # Tiempo que se queda el "fusible" fuera
         permittedNumberOfCallsInHalfOpenState: 2
