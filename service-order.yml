@@ -42,3 +42,4 @@ resilience4j:
     instances:
       productosTL:
         timeoutDuration: 2s           # Si tarda más de 2s, corta la conexión
+        cancelRunningFuture: true     # Las tareas bloqueadas no continúan ejecutándose en segundo plano
