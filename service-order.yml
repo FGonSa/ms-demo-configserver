@@ -18,18 +18,19 @@ server:
 
 resilience4j:
   circuitbreaker:
+    circuit-breaker-aspect-order: 1 # capa más externa
     instances:
       productosCB:
         slidingWindowSize: 6          # Mira las últimas 6 llamadas
         failureRateThreshold: 50      # Si 3 de 6 fallan, abre el circuito
         waitDurationInOpenState: 20s  # Tiempo que se queda el "fusible" fuera
         permittedNumberOfCallsInHalfOpenState: 2
-        circuit-breaker-aspect-order: 1 # capa más externa
+        
 
   retry:
+    retry-aspect-order: 2         # Capa más interna (envuelve al fallback Method)
     instances:
       productosRetry:
-        retry-aspect-order: 2         # Capa más interna (envuelve al fallback Method)
         maxAttempts: 3                # Reintenta hasta 3 veces
         waitDuration: 2s              # Espera 2s entre reintentos
         retryExceptions:
