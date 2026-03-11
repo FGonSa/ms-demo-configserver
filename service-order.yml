@@ -20,16 +20,18 @@ resilience4j:
   circuitbreaker:
     instances:
       productosCB:
-        slidingWindowSize: 10          # Mira las últimas 10 llamadas
+        slidingWindowSize: 6          # Mira las últimas 6 llamadas
         failureRateThreshold: 50      # Si 3 de 6 fallan, abre el circuito
         waitDurationInOpenState: 20s  # Tiempo que se queda el "fusible" fuera
         permittedNumberOfCallsInHalfOpenState: 2
+        circuit-breaker-aspect-order: 1 # capa más externa
 
   retry:
     instances:
       productosRetry:
+        retry-aspect-order: 2         # Capa más interna (envuelve al fallback Method)
         maxAttempts: 3                # Reintenta hasta 3 veces
-        waitDuration: 2s              # Espera 1s entre reintentos
+        waitDuration: 2s              # Espera 2s entre reintentos
         retryExceptions:
           - java.io.IOException
           - org.springframework.web.client.HttpStatusCodeException # Captura 4xx y 5xx
