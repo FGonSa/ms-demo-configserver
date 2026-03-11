@@ -38,9 +38,17 @@ resilience4j:
           - org.springframework.web.client.HttpStatusCodeException # Captura 4xx y 5xx
           - java.util.concurrent.CompletionException # Importante para CompletableFuture
           - java.util.concurrent.TimeoutException # Importante para TimeLimiter
-
+          
+  threadpoolbulkhead:
+    thread-pool-bulkhead-aspect-order: 3
+    instances:
+      productosBH:
+        maxThreadPoolSize: 2      # Solo 2 hilos trabajando a la vez para este cliente
+        coreThreadPoolSize: 1     # 1 hilo siempre listo
+        queueCapacity: 1
+          
   timelimiter:
-    time-limiter-aspect-order: 3
+    time-limiter-aspect-order: 4
     instances:
       productosTL:
         timeoutDuration: 2s           # Si tarda más de 2s, corta la conexión
