@@ -17,11 +17,23 @@ server:
   port: 8083
 
 resilience4j:
-  circuitbreaker: # Patrón
+  circuitbreaker:
     instances:
-      productosCB: # Nombre que le daremos al circuito (backendA, backendB...)
-        registerHealthIndicator: true # para Actuator
-        slidingWindowSize: 10          # Mira las últimas 10 llamadas
-        failureRateThreshold: 50       # Si falla el 50%, abre el circuito
-        waitDurationInOpenState: 10s   # Espera 10s antes de intentar reconectar
-        permittedNumberOfCallsInHalfOpenState: 3  # Llamadas de prueba en Semi-Abierto
+      productosCB:
+        slidingWindowSize: 6          # Mira las últimas 6 llamadas
+        failureRateThreshold: 50      # Si 3 de 6 fallan, abre el circuito
+        waitDurationInOpenState: 20s  # Tiempo que se queda el "fusible" fuera
+        permittedNumberOfCallsInHalfOpenState: 2
+
+  retry:
+    instances:
+      productosRetry:
+        maxAttempts: 3                # Reintenta hasta 3 veces
+        waitDuration: 1s              # Espera 1s entre reintentos
+        retryExceptions:
+          - java.io.IOException       # Solo reintenta si es error de red
+
+  timelimiter:
+    instances:
+      productosTL:
+        timeoutDuration: 2s           # Si tarda más de 2s, corta la conexión
