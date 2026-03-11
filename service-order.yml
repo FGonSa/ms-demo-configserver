@@ -31,7 +31,9 @@ resilience4j:
         maxAttempts: 3                # Reintenta hasta 3 veces
         waitDuration: 1s              # Espera 1s entre reintentos
         retryExceptions:
-          - java.io.IOException       # Solo reintenta si es error de red
+          - java.io.IOException
+          - org.springframework.web.client.HttpStatusCodeException # Captura 4xx y 5xx
+          - java.util.concurrent.CompletionException # Importante para CompletableFuture
 
   timelimiter:
     instances:
