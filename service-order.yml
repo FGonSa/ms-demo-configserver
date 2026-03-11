@@ -39,6 +39,7 @@ resilience4j:
           - java.util.concurrent.CompletionException # Importante para CompletableFuture
 
   timelimiter:
+    time-limiter-aspect-order: 3
     instances:
       productosTL:
         timeoutDuration: 2s           # Si tarda más de 2s, corta la conexión
