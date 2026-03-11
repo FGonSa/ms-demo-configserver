@@ -15,3 +15,13 @@ spring:
     database-platform: org.hibernate.dialect.PostgreSQLDialect
 server:
   port: 8083
+
+resilience4j:
+  circuitbreaker: # Patrón
+    instances:
+      productosCB: # Nombre que le daremos al circuito (backendA, backendB...)
+        registerHealthIndicator: true # para Actuator
+        slidingWindowSize: 10          # Mira las últimas 10 llamadas
+        failureRateThreshold: 50       # Si falla el 50%, abre el circuito
+        waitDurationInOpenState: 10s   # Espera 10s antes de intentar reconectar
+        permittedNumberOfCallsInHalfOpenState: 3  # Llamadas de prueba en Semi-Abierto
