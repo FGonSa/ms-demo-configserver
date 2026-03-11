@@ -37,6 +37,7 @@ resilience4j:
           - java.io.IOException
           - org.springframework.web.client.HttpStatusCodeException # Captura 4xx y 5xx
           - java.util.concurrent.CompletionException # Importante para CompletableFuture
+          - java.util.concurrent.TimeoutException # Importante para TimeLimiter
 
   timelimiter:
     time-limiter-aspect-order: 3
