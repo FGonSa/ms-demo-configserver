@@ -28,7 +28,7 @@ resilience4j:
         
 
   retry:
-    retry-aspect-order: 2         # Capa más interna (envuelve al fallback Method)
+    retry-aspect-order: 3        
     instances:
       productosRetry:
         maxAttempts: 3                # Reintenta hasta 3 veces
@@ -40,7 +40,7 @@ resilience4j:
           - java.util.concurrent.TimeoutException # Importante para TimeLimiter
           
   threadpoolbulkhead:
-    thread-pool-bulkhead-aspect-order: 3
+    thread-pool-bulkhead-aspect-order: 2
     instances:
       productosBH:
         maxThreadPoolSize: 2      # Solo 2 hilos trabajando a la vez para este cliente
