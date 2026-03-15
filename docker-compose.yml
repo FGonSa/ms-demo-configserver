@@ -1,0 +1,116 @@
+services:
+  config-server:
+    build: ./config-server
+    container_name: ${CONFIG_SERVER_NAME}
+    ports:
+      - "${CONFIG_PORT}:${CONFIG_PORT}"
+    environment:
+      - EUREKA_URL=http://${EUREKA_SERVER_NAME}:8761/eureka/
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:${CONFIG_PORT}/actuator/health"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  eureka-server:
+    build: ./eureka-server
+    container_name: ${EUREKA_SERVER_NAME}
+    ports:
+      - "${EUREKA_PORT}:8761"
+    depends_on:
+      config-server:
+        condition: service_healthy
+    environment:
+      - SPRING_CONFIG_IMPORT=optional:configserver:http://${CONFIG_SERVER_NAME}:${CONFIG_PORT}
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:${EUREKA_PORT}/actuator/health"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  db-product:
+    image: postgres:15
+    container_name: db-product
+    environment:
+      POSTGRES_DB: ${DB_PRODUCT_NAME}
+      POSTGRES_USER: ${DB_USER}
+      POSTGRES_PASSWORD: ${DB_PASSWORD}
+    ports:
+      - "${DB_PRODUCT_PORT}:5432"
+
+  db-order:
+    image: postgres:15
+    container_name: db-order
+    environment:
+      POSTGRES_DB: ${DB_ORDER_NAME}
+      POSTGRES_USER: ${DB_USER}
+      POSTGRES_PASSWORD: ${DB_PASSWORD}
+    ports:
+      - "${DB_ORDER_PORT}:5432"
+
+  service-product:
+    build: ./service-product
+    container_name: service-product
+    depends_on:
+      config-server:             
+        condition: service_healthy # Espera a que el Config esté sano
+      db-product:
+        condition: service_started
+    environment:
+      - SPRING_CONFIG_IMPORT=optional:configserver:http://${CONFIG_SERVER_NAME}:${CONFIG_PORT}
+      - EUREKA_CLIENT_SERVICEURL_DEFAULTZONE=http://${EUREKA_SERVER_NAME}:8761/eureka/
+      - SPRING_DATASOURCE_URL=jdbc:postgresql://db-product:5432/${DB_PRODUCT_NAME}
+      - SPRING_DATASOURCE_USERNAME=${DB_USER}
+      - SPRING_DATASOURCE_PASSWORD=${DB_PASSWORD}
+      - SPRING_KAFKA_BOOTSTRAP_SERVERS=kafka:29092
+
+  service-order:
+    build: ./service-order
+    container_name: service-order
+    depends_on:
+      config-server:              
+        condition: service_healthy # Espera a que el Config esté sano
+      db-order:
+        condition: service_started
+    environment:
+      - SPRING_CONFIG_IMPORT=optional:configserver:http://${CONFIG_SERVER_NAME}:${CONFIG_PORT}
+      - EUREKA_CLIENT_SERVICEURL_DEFAULTZONE=http://${EUREKA_SERVER_NAME}:8761/eureka/
+      - SPRING_DATASOURCE_URL=jdbc:postgresql://db-order:5432/${DB_ORDER_NAME}
+      - SPRING_DATASOURCE_USERNAME=${DB_USER}
+      - SPRING_DATASOURCE_PASSWORD=${DB_PASSWORD}
+      - SPRING_KAFKA_BOOTSTRAP_SERVERS=kafka:29092 # Se conecta a KAFKA
+
+  zookeeper:
+    image: confluentinc/cp-zookeeper:7.5.0
+    environment:
+      ZOOKEEPER_CLIENT_PORT: 2181
+      ZOOKEEPER_TICK_TIME: 2000
+
+  kafka:
+    image: confluentinc/cp-kafka:7.5.0
+    container_name: kafka
+    depends_on:
+      - zookeeper
+    ports:
+      - "9092:9092"
+    environment:
+      KAFKA_BROKER_ID: 1
+      KAFKA_ZOOKEEPER_CONNECT: zookeeper:2181
+      # Definimos dos vías: INTERNA para los contenedores y EXTERNA para tu PC
+      KAFKA_ADVERTISED_LISTENERS: INTERNAL://kafka:29092,EXTERNAL://localhost:9092
+      KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: INTERNAL:PLAINTEXT,EXTERNAL:PLAINTEXT
+      KAFKA_INTER_BROKER_LISTENER_NAME: INTERNAL
+      KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
+
+  kafka-ui:
+    image: provectuslabs/kafka-ui:latest
+    ports:
+      - "9080:9080"
+    depends_on:
+      - kafka
+    environment:
+      KAFKA_CLUSTERS_0_NAME: local
+      KAFKA_CLUSTERS_0_BOOTSTRAPSERVERS: kafka:29092 # Para encontrar a KAFKA
+      KAFKA_CLUSTERS_0_ZOOKEEPER: zookeeper:2181 # Para encontrar a ZOOKEEPER
+      AUTH_TYPE: DISABLED
+      SERVER_PORT: 9080 # Para que el contenedor use el 9080 internamente
